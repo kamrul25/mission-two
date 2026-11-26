@@ -1,16 +1,22 @@
 
-import { type Express, type Request, type Response } from 'express';
 import app from './app';
-import "dotenv/config";
+import config from './config';
+import { pool } from './config/db';
+import { initDatabase } from './config/initDb';
 
-const port =process.env.PORT || 4000
-const startServer = ()=>{
+
+const startServer = async()=>{
     try {
-        app.listen(port, ()=>{
-            console.log(`Server is running at port: ${port}`);
-        })
+        const time  = await pool.query("SELECT NOW()");
+        console.log("Database connected successfully on: ", time.rows[0].now);
+
+        initDatabase();
+
+        app.listen(config.port, ()=>{
+            console.log(`Server is running at port: ${config.port}`);
+        });
     } catch (error) {
-        console.error(`Error:`, error);
+        console.error(`Failed to connect server`, error);
     }
 }
 
